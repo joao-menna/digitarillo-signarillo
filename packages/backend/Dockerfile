@@ -27,10 +27,10 @@ COPY --from=build /app/node_modules/bcrypt /app/node_modules/bcrypt
 
 COPY --from=build /app/server server
 
-RUN chmod +x /app/server
+RUN chmod +x ./server
 
 ENV NODE_ENV=production
 
 EXPOSE 8080
 
-CMD ["/app/server"]
+CMD ["./server"]

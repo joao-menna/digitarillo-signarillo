@@ -10,7 +10,7 @@ export const users = pgTable("user", {
     .defaultNow(),
 });
 
-export const employee = pgTable("employee", {
+export const employees = pgTable("employee", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull(),

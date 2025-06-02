@@ -18,7 +18,8 @@ bun install
 
 $envFilePath = Join-Path $backendPath ".env"
 $envExampleFilePath = Join-Path $backendPath ".env.example"
-if (!Test-Path $envFilePath -PathType Leaf) {
+$envExists = Test-Path $envFilePath -PathType Leaf
+if ($envExists = "False") {
   Copy-Item $envExampleFilePath -Destination $envFilePath
 }
 
@@ -27,7 +28,8 @@ Set-Location $frontendPath
 
 $envFilePath = Join-Path $frontendPath ".env"
 $envExampleFilePath = Join-Path $frontendPath ".env.example"
-if (!Test-Path $envFilePath -PathType Leaf) {
+$envExists = Test-Path $envFilePath -PathType Leaf
+if ($envExists = "False") {
   Copy-Item $envExampleFilePath -Destination $envFilePath
 }
 

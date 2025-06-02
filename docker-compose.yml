@@ -3,6 +3,7 @@ name: digitarillo
 
 services:
   db:
+    container_name: db
     image: postgres:17-alpine
     restart: on-failure
     environment:
@@ -24,6 +25,7 @@ services:
 
 
   smtp:
+    container_name: smtp
     image: rnwood/smtp4dev:latest
     restart: on-failure
     ports:
@@ -34,6 +36,7 @@ services:
 
 
   proxy:
+    container_name: proxy
     image: nginx:latest
     restart: on-failure
     volumes:
@@ -49,13 +52,22 @@ services:
 
 
   backend:
+    container_name: backend
     restart: on-failure:3
     build:
       context: ./packages/backend
       dockerfile: Dockerfile
+    develop:
+      watch:
+        - action: rebuild
+          path: ./packages/backend
+          ignore:
+            - node_modules/
+            - drizzle/
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/digitarillo
       - JWT_SECRET=digitarillo
+      - SMTP_ENABLED=true
       - SMTP_HOST=smtp
       - SMTP_PORT=25
       - SMTP_USERNAME=any
