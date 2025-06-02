@@ -1,0 +1,78 @@
+name: digitarillo
+
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: on-failure
+    environment:
+      - POSTGRES_DB=digitarillo
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "digitarillo"]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      start_period: 10s
+    volumes:
+      - app_db:/var/lib/postgresql/data
+    ports:
+      - 5432:5432 # port opened for debug
+    networks:
+      - app_network
+
+
+  smtp:
+    image: rnwood/smtp4dev:latest
+    restart: on-failure
+    ports:
+      - 5000:80
+      - 2525:25
+    networks:
+      - app_network
+
+
+  proxy:
+    image: nginx:latest
+    restart: on-failure
+    volumes:
+      - ./packages/frontend/dist:/usr/share/nginx/html
+      - ./docker/proxy/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - 80:80
+    networks:
+      - app_network
+    depends_on:
+      backend:
+        condition: service_started
+
+
+  backend:
+    restart: on-failure:3
+    build:
+      context: ./packages/backend
+      dockerfile: Dockerfile
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/digitarillo
+      - JWT_SECRET=digitarillo
+      - SMTP_HOST=smtp
+      - SMTP_PORT=25
+      - SMTP_USERNAME=any
+      - SMTP_PASSWORD=any
+    volumes:
+      - ./keys:/app/keys
+    networks:
+      - app_network
+    depends_on:
+      db:
+        condition: service_healthy
+
+
+
+volumes:
+  app_db:
+
+
+networks:
+  app_network:
