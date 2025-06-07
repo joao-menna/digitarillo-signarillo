@@ -18,5 +18,6 @@ export async function generateCertificate() {
   return {
     ca,
     cert,
+    fullChain: cert.cert + ca.cert,
   };
 }

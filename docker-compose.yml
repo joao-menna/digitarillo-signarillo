@@ -73,7 +73,9 @@ services:
       - SMTP_USERNAME=any
       - SMTP_PASSWORD=any
     volumes:
-      - ./keys:/app/keys
+      - ./data/keys:/app/keys
+      - ./data/receipts:/app/receipts
+      - ./data/reports:/app/reports
     networks:
       - app_network
     depends_on:

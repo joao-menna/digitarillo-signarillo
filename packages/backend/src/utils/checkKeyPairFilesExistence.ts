@@ -1,10 +1,6 @@
 import { existsSync, writeFileSync } from "fs";
-import { cwd } from "process"
 import { generateKeyPair } from "../signature/generateKeyPair";
-import { resolve } from "path";
-
-const privateKeyFile = resolve(cwd(), "keys", "private-key.pem");
-const publicKeyFile = resolve(cwd(), "keys", "public-key.pem");
+import { privateKeyFile, publicKeyFile } from "../constants/paths";
 
 export function checkKeyPairFilesExistence() {
   if (!existsSync(privateKeyFile) || !existsSync(publicKeyFile)) {

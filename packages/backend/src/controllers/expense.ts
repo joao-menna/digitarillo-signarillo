@@ -5,11 +5,10 @@ import { db, table } from "../db";
 import { asc, desc, eq } from "drizzle-orm";
 import fs from "fs/promises";
 import path from "path";
-import { cwd } from "process";
 import { v4 } from "uuid";
 import { existsSync, mkdirSync } from "fs";
-
-const pathForReceipts = path.resolve(cwd(), "receipts");
+import { generateReport } from "../utils/generateReport";
+import { pathForReceipts } from "../constants/paths";
 
 export const expenseRouter = new Elysia({ prefix: "/api/expense" })
   .use(setup())
@@ -92,6 +91,8 @@ export const expenseRouter = new Elysia({ prefix: "/api/expense" })
           .values(body)
           .returning();
 
+        generateReport(expense);
+
         return status(201, expense);
       } catch {
         return status(500, { message: "internal server error" });
@@ -100,6 +101,7 @@ export const expenseRouter = new Elysia({ prefix: "/api/expense" })
     {
       body: t.Object({
         name: t.String(),
+        employeeId: t.Number(),
         amount: t.Number(),
         receiptPath: t.String(),
       }),
@@ -113,12 +115,13 @@ export const expenseRouter = new Elysia({ prefix: "/api/expense" })
       }
 
       try {
-        const fileName = `${v4()}.file`;
+        const ext = body.file.type === "image/jpeg" ? "jpg" : "png";
+        const fileName = `${v4()}.${ext}`;
         const filePath = path.resolve(pathForReceipts, fileName);
         const bytes = await body.file.bytes();
         await fs.writeFile(filePath, bytes);
         return {
-          fileName,
+          receiptPath: fileName,
         };
       } catch {
         return status(500, { message: "internal server error" });
@@ -126,7 +129,7 @@ export const expenseRouter = new Elysia({ prefix: "/api/expense" })
     },
     {
       body: t.Object({
-        file: t.File({ type: ["image/*", "application/pdf"] }),
+        file: t.File({ type: ["image/jpeg", "image/png"] }),
       }),
     },
   )

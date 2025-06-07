@@ -30,6 +30,10 @@ COPY --from=build /app/server server
 
 RUN chmod +x ./server
 
+RUN \
+  apt-get update && \
+  apt-get install -y openssl
+
 ENV NODE_ENV=production
 
 EXPOSE 8080
