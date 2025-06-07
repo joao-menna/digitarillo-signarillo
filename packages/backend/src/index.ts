@@ -8,13 +8,16 @@ import { employeeRouter } from "./controllers/employee";
 import { setup } from "./middlewares/setup";
 import { checkKeyPairFilesExistence } from "./utils/checkKeyPairFilesExistence";
 import { config } from "dotenv";
+import { expenseRouter } from "./controllers/expense";
+import { checkCertificateFilesExistence } from "./utils/checkCertificateFilesExistence";
 
 const rateLimitDuration = 10 * 1000; // 10s
 const csrfTokenDuration = 1 * 60 * 60; // 1h
 
 config();
 
-checkKeyPairFilesExistence();
+checkKeyPairFilesExistence()
+checkCertificateFilesExistence()
 
 const app = new Elysia()
   .use(swagger({ path: "/api/swagger" }))
@@ -34,6 +37,7 @@ const app = new Elysia()
   })
   .use(authRouter)
   .use(employeeRouter)
+  .use(expenseRouter)
   .listen(8080);
 
 console.log(

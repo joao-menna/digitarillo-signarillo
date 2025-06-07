@@ -1,5 +1,5 @@
 import { drizzle } from "drizzle-orm/postgres-js";
-import { employees, users } from "./schema";
+import { employee, expense, report, user } from "./schema";
 
 export const db = drizzle({
   connection: {
@@ -8,6 +8,8 @@ export const db = drizzle({
 });
 
 export const table = {
-  users,
-  employees,
+  user,
+  employee,
+  expense,
+  report,
 } as const;

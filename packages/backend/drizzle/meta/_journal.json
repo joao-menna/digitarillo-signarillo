@@ -15,6 +15,13 @@
       "when": 1748824759742,
       "tag": "0001_bent_skullbuster",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1749264437552,
+      "tag": "0002_polite_pixie",
+      "breakpoints": true
     }
   ]
 }

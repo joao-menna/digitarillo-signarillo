@@ -8,7 +8,7 @@ import { setup } from "../middlewares/setup";
 
 const jwtExpiration = 1 * 60 * 60; // 1h
 
-const registerUserSchema = createInsertSchema(table.users, {
+const registerUserSchema = createInsertSchema(table.user, {
   email: t.String({ format: "email" }),
 });
 
@@ -32,7 +32,7 @@ export const authRouter = new Elysia({ prefix: "/api/auth" })
 
       try {
         const [user] = await db
-          .insert(table.users)
+          .insert(table.user)
           .values({
             name,
             email,
@@ -70,8 +70,8 @@ export const authRouter = new Elysia({ prefix: "/api/auth" })
       try {
         const [user] = await db
           .select()
-          .from(table.users)
-          .where(eq(table.users.email, email))
+          .from(table.user)
+          .where(eq(table.user.email, email))
           .limit(1);
 
         if (!(await compare(password, user.password))) {
