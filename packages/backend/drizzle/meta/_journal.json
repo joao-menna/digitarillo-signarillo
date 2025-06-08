@@ -29,6 +29,20 @@
       "when": 1749316902498,
       "tag": "0003_bumpy_elektra",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1749344619790,
+      "tag": "0004_petite_tombstone",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1749345379634,
+      "tag": "0005_remarkable_longshot",
+      "breakpoints": true
     }
   ]
 }

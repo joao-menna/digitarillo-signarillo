@@ -1,0 +1,1 @@
+ALTER TABLE "report" ALTER COLUMN "expense_id" SET NOT NULL;

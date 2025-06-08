@@ -45,6 +45,4 @@ export async function signReport(expenseId: number, userName: string, approved: 
 
   const signPath = path.resolve(pathForReports, `${expenseId}.bin`);
   await fs.writeFile(signPath, signature);
-
-  return hash;
 }

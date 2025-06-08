@@ -4,24 +4,28 @@ import { setup } from "./setup";
 export const requireAuthentication = () =>
   new Elysia()
     .use(setup())
-    .onBeforeHandle(({ headers, cookie: { auth }, status }) => {
-      const token = headers["authorization"] ?? auth.value;
-
-      if (!token) {
-        return status(401, { message: "user not logged in" });
-      }
-    })
     .resolve(
       { as: "scoped" },
       async ({ jwt, headers, cookie: { auth }, status }) => {
         const token = headers["authorization"] ?? auth.value;
 
         try {
+          const user = await jwt.verify(token);
+
+          if (!user) {
+            return status(401, { message: "user not logged in" });
+          }
+
           return {
-            user: await jwt.verify(token),
+            user,
           };
         } catch {
           return status(401, { message: "user not logged in" });
         }
       },
-    );
+    )
+    .onBeforeHandle(({ user, status }) => {
+      if (!user) {
+        return status(401, { message: "user not logged in" });
+      }
+    });

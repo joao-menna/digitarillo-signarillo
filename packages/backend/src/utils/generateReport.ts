@@ -111,7 +111,7 @@ export async function generateReport(expense: Expense) {
     y: 70,
   });
 
-  page.drawText("Diretor", {
+  page.drawText("Gerente", {
     size: 16,
     x: ((w - 100) / 8) * 7 - 20,
     y: 50,

@@ -49,8 +49,7 @@ export const report = pgTable("report", {
   id: serial("id").primaryKey(),
   expenseId: integer("expense_id").references(() => expense.id, {
     onDelete: "cascade",
-  }),
-  filename: text("filename").notNull(),
+  }).notNull(),
   vote: text("vote", { enum: ["approved", "rejected", "not voted"] })
     .default("not voted")
     .notNull(),

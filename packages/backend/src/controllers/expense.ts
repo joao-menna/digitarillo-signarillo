@@ -9,6 +9,8 @@ import { v4 } from "uuid";
 import { existsSync, mkdirSync } from "fs";
 import { generateReport } from "../utils/generateReport";
 import { pathForReceipts } from "../constants/paths";
+import { signReport } from "../utils/signReport";
+import { verifyReportHashToSignature } from "../utils/verifyReportHashToSignature";
 
 export const expenseRouter = new Elysia({ prefix: "/api/expense" })
   .use(setup())
@@ -62,6 +64,32 @@ export const expenseRouter = new Elysia({ prefix: "/api/expense" })
     },
   )
   .get(
+    "/pending",
+    async ({ status }) => {
+      try {
+        const expenses = await db
+          .select({
+            id: table.expense.id,
+            name: table.expense.name,
+            amount: table.expense.amount,
+            createdAt: table.expense.createdAt,
+            employeeId: table.expense.employeeId,
+            receiptPath: table.expense.receiptPath,
+          })
+          .from(table.expense)
+          .orderBy(desc(table.expense.id))
+          .innerJoin(
+            table.report,
+            eq(table.expense.id, table.report.expenseId),
+          );
+
+        return expenses;
+      } catch {
+        return status(500, { message: "internal server error" });
+      }
+    },
+  )
+  .get(
     "/:id",
     async ({ params: { id }, status }) => {
       try {
@@ -91,7 +119,7 @@ export const expenseRouter = new Elysia({ prefix: "/api/expense" })
           .values(body)
           .returning();
 
-        generateReport(expense);
+        await generateReport(expense);
 
         return status(201, expense);
       } catch {
@@ -146,6 +174,65 @@ export const expenseRouter = new Elysia({ prefix: "/api/expense" })
     {
       params: t.Object({
         id: t.Number({ minimum: 1 }),
+      }),
+    },
+  )
+  .post(
+    "/vote",
+    async ({ user, body, status }) => {
+      try {
+        const [report] = await db
+          .insert(table.report)
+          .values({
+            expenseId: body.id,
+            vote: body.vote,
+          })
+          .returning();
+
+        const [dbUser] = await db
+          .select()
+          .from(table.user)
+          .where(eq(table.user.id, user.userId))
+          .limit(1);
+
+        await signReport(
+          report.expenseId,
+          dbUser.name,
+          body.vote === "approved",
+        );
+
+        return status(200, { message: "expense voted" });
+      } catch {
+        return status(500, { message: "internal server error" });
+      }
+    },
+    {
+      body: t.Object({
+        id: t.Number({ minimum: 1 }),
+        vote: t.Enum({
+          approved: "approved",
+          rejected: "rejected",
+        }),
+      }),
+    },
+  )
+  .post(
+    "/validate",
+    async ({ body: { file, expenseId }, status }) => {
+      try {
+        const isValid = verifyReportHashToSignature(
+          expenseId,
+          await file.arrayBuffer(),
+        );
+        return { isValid };
+      } catch {
+        return status(500, { message: "internal server error" });
+      }
+    },
+    {
+      body: t.Object({
+        expenseId: t.Number({ minimum: 1 }),
+        file: t.File({ type: ["application/pdf"] }),
       }),
     },
   );
