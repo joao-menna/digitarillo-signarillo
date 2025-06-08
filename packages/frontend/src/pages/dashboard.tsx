@@ -20,7 +20,7 @@ export function DashboardPage() {
           )}
           onClick={() => navigate("/expense/submit")}
         >
-          Submissão de Relatórios de Despesa
+          Submissão de Despesas
         </button>
         <button
           className={clsx(
@@ -30,6 +30,24 @@ export function DashboardPage() {
           onClick={() => navigate("/expense/pending")}
         >
           Relatórios de despesa pendentes de aprovação
+        </button>
+        <button
+          className={clsx(
+            "size-full bg-slate-200 hover:bg-slate-200/60",
+            "p-2"
+          )}
+          onClick={() => navigate("/expense/signed")}
+        >
+          Relatórios de despesa assinados
+        </button>
+        <button
+          className={clsx(
+            "size-full bg-slate-200 hover:bg-slate-200/60",
+            "p-2"
+          )}
+          onClick={() => navigate("/signature/verify")}
+        >
+          Verificar autenticidade de documento
         </button>
       </div>
     </div>

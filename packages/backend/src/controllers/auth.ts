@@ -88,7 +88,7 @@ export const authRouter = new Elysia({ prefix: "/api/auth" })
         auth.set({
           value: token,
           httpOnly: true,
-          maxAge: jwtExpiration,
+          maxAge: jwtExpiration / 1000,
         });
 
         return status(200, { message: "successfully logged in", token });

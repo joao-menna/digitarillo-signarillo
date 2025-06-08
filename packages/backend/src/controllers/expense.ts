@@ -1,4 +1,4 @@
-import Elysia, { t } from "elysia";
+import Elysia, { file, t } from "elysia";
 import { setup } from "../middlewares/setup";
 import { requireAuthentication } from "../middlewares/requireAuthentication";
 import { db, table } from "../db";
@@ -8,12 +8,13 @@ import path from "path";
 import { v4 } from "uuid";
 import { existsSync, mkdirSync } from "fs";
 import { generateReport } from "../utils/generateReport";
-import { pathForReceipts } from "../constants/paths";
+import { pathForReceipts, pathForReports } from "../constants/paths";
 import { signReport } from "../utils/signReport";
 import { verifyReportHashToSignature } from "../utils/verifyReportHashToSignature";
 
 export const expenseRouter = new Elysia({ prefix: "/api/expense" })
   .use(setup())
+  .use(requireAuthentication())
   .get(
     "/",
     async ({ query, status }) => {
@@ -94,6 +95,7 @@ export const expenseRouter = new Elysia({ prefix: "/api/expense" })
           createdAt: table.expense.createdAt,
           employeeId: table.expense.employeeId,
           receiptPath: table.expense.receiptPath,
+          vote: table.report.vote,
         })
         .from(table.expense)
         .orderBy(desc(table.expense.id))
@@ -115,6 +117,22 @@ export const expenseRouter = new Elysia({ prefix: "/api/expense" })
           .limit(1);
 
         return expense;
+      } catch {
+        return status(404, { message: "user not found" });
+      }
+    },
+    {
+      params: t.Object({
+        id: t.Number({ minimum: 1 }),
+      }),
+    }
+  )
+  .get(
+    "/:id/download",
+    async ({ params: { id }, status }) => {
+      try {
+        const report = path.resolve(pathForReports, `${id}.pdf`);
+        return file(report);
       } catch {
         return status(404, { message: "user not found" });
       }
@@ -176,7 +194,6 @@ export const expenseRouter = new Elysia({ prefix: "/api/expense" })
       }),
     }
   )
-  .use(requireAuthentication())
   .delete(
     "/:id",
     async ({ params: { id }, status }) => {
@@ -232,12 +249,12 @@ export const expenseRouter = new Elysia({ prefix: "/api/expense" })
     }
   )
   .post(
-    "/validate",
-    async ({ body: { file, expenseId }, status }) => {
+    "/:id/validate",
+    async ({ body: { file }, params: { id }, status }) => {
       try {
-        const isValid = verifyReportHashToSignature(
-          expenseId,
-          await file.arrayBuffer()
+        const isValid = await verifyReportHashToSignature(
+          id,
+          Buffer.from(await file.arrayBuffer())
         );
         return { isValid };
       } catch {
@@ -245,8 +262,10 @@ export const expenseRouter = new Elysia({ prefix: "/api/expense" })
       }
     },
     {
+      params: t.Object({
+        id: t.Number(),
+      }),
       body: t.Object({
-        expenseId: t.Number({ minimum: 1 }),
         file: t.File({ type: ["application/pdf"] }),
       }),
     }

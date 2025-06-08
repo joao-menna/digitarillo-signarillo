@@ -4,7 +4,11 @@ import crypto from "crypto";
 import path from "path";
 import { pathForReports, privateKeyFile } from "../constants/paths";
 
-export async function signReport(expenseId: number, userName: string, approved: boolean) {
+export async function signReport(
+  expenseId: number,
+  userName: string,
+  approved: boolean
+) {
   const pdfPath = path.resolve(pathForReports, `${expenseId}.pdf`);
   const pdfBytes = await fs.readFile(pdfPath);
 
@@ -23,14 +27,14 @@ export async function signReport(expenseId: number, userName: string, approved: 
     y: 78,
   });
 
-  const form = doc.getForm()
+  const form = doc.getForm();
   if (approved) {
-    form.getRadioGroup("vote").select("Aprovado")
+    form.getRadioGroup("vote").select("Aprovado");
   } else {
-    form.getRadioGroup("vote").select("Reprovado")
+    form.getRadioGroup("vote").select("Reprovado");
   }
 
-  form.flatten()
+  form.flatten();
 
   const pdfSigned = await doc.save();
   await fs.writeFile(pdfPath, pdfSigned);
@@ -44,5 +48,5 @@ export async function signReport(expenseId: number, userName: string, approved: 
   });
 
   const signPath = path.resolve(pathForReports, `${expenseId}.bin`);
-  await fs.writeFile(signPath, signature);
+  await fs.writeFile(signPath, signature.toString("base64"));
 }

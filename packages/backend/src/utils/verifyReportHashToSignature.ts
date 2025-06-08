@@ -1,10 +1,20 @@
 import crypto from "crypto";
-import { publicKeyFile } from "../constants/paths";
+import {
+  pathForReports,
+  privateKeyFile,
+  publicKeyFile,
+} from "../constants/paths";
 import fs from "fs/promises";
 import { getReportSignature } from "./getReportSignature";
+import path from "path";
 
-export async function verifyReportHashToSignature(expenseId: number, pdfBytes: Buffer | ArrayBuffer) {
+export async function verifyReportHashToSignature(
+  expenseId: number,
+  pdfBytes: Buffer
+  // pdfBytes: DataView<ArrayBufferLike>
+) {
   const publicKey = await fs.readFile(publicKeyFile, "utf8");
+
   const signature = await getReportSignature(expenseId);
   // const pdfPath = path.resolve(pathForReports, `${expenseId}.pdf`);
   // const pdfBytes = await fs.readFile(pdfPath);
@@ -16,6 +26,6 @@ export async function verifyReportHashToSignature(expenseId: number, pdfBytes: B
     "sha256",
     Buffer.from(hash.digest("base64")),
     { key: publicKey },
-    signature,
+    signature
   );
 }

@@ -78,7 +78,12 @@ export const router = createBrowserRouter([
           },
           {
             path: "sign",
-            element: <SignExpensePage />,
+            children: [
+              {
+                path: ":id",
+                element: <SignExpensePage />,
+              },
+            ],
           },
           {
             path: "signed",
