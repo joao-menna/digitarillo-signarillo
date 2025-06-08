@@ -1,3 +1,4 @@
+import { ProtectedLayout } from "@/layouts/ProtectedLayout";
 import { DashboardPage } from "@/pages/dashboard";
 import { EmployeesPage } from "@/pages/employees";
 import { LoginPage } from "@/pages/login";
@@ -8,33 +9,49 @@ import { SignExpensePage } from "@/pages/signExpense";
 import { SubmitExpensePage } from "@/pages/submitExpense";
 import { ValidateExpensePage } from "@/pages/validateExpense";
 import { VerifySignaturePage } from "@/pages/verifySignature";
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, useNavigate } from "react-router";
+import { useEffectOnce } from "react-use";
+
+function Redirect() {
+  const navigate = useNavigate();
+
+  useEffectOnce(() => {
+    navigate("/login");
+  });
+
+  return <></>;
+}
 
 export const router = createBrowserRouter([
   {
+    path: "",
+    element: <Redirect />,
+  },
+  {
     path: "login",
-    element: <LoginPage />
+    element: <LoginPage />,
   },
   {
     path: "register",
-    element: <RegisterPage />
+    element: <RegisterPage />,
   },
   {
+    element: <ProtectedLayout />,
     children: [
       {
         path: "dashboard",
-        element: <DashboardPage />
+        element: <DashboardPage />,
       },
       {
         path: "employees",
-        element: <EmployeesPage />
+        element: <EmployeesPage />,
       },
       {
         path: "signature",
         children: [
           {
             path: "verify",
-            element: <VerifySignaturePage />
+            element: <VerifySignaturePage />,
           },
         ],
       },
@@ -43,23 +60,23 @@ export const router = createBrowserRouter([
         children: [
           {
             path: "submit",
-            element: <SubmitExpensePage />
+            element: <SubmitExpensePage />,
           },
           {
             path: "pending",
-            element: <PendingExpensesPage />
+            element: <PendingExpensesPage />,
           },
           {
             path: "validate",
-            element: <ValidateExpensePage />
+            element: <ValidateExpensePage />,
           },
           {
             path: "sign",
-            element: <SignExpensePage />
+            element: <SignExpensePage />,
           },
           {
             path: "signed",
-            element: <SignedExpensesPage />
+            element: <SignedExpensesPage />,
           },
         ],
       },

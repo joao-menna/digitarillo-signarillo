@@ -7,7 +7,7 @@ export const requireAuthentication = () =>
     .resolve(
       { as: "scoped" },
       async ({ jwt, headers, cookie: { auth }, status }) => {
-        const token = headers["authorization"] ?? auth.value;
+        const token = auth.value ?? headers["authorization"];
 
         try {
           const user = await jwt.verify(token);
@@ -22,7 +22,7 @@ export const requireAuthentication = () =>
         } catch {
           return status(401, { message: "user not logged in" });
         }
-      },
+      }
     )
     .onBeforeHandle(({ user, status }) => {
       if (!user) {

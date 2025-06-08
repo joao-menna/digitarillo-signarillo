@@ -5,6 +5,7 @@ import { createInsertSchema } from "drizzle-typebox";
 import { eq } from "drizzle-orm";
 import { CSRF } from "bun";
 import { setup } from "../middlewares/setup";
+import { requireAuthentication } from "../middlewares/requireAuthentication";
 
 const jwtExpiration = 1 * 60 * 60; // 1h
 
@@ -14,13 +15,6 @@ const registerUserSchema = createInsertSchema(table.user, {
 
 export const authRouter = new Elysia({ prefix: "/api/auth" })
   .use(setup())
-  .onBeforeHandle(({ headers, status }) => {
-    const csrfFromHeader = headers["x-csrf-token"];
-
-    if (!csrfFromHeader || !CSRF.verify(csrfFromHeader)) {
-      return status(403, { message: "csrf_token missing or incorrect" });
-    }
-  })
   .post(
     "/register",
     async ({ body, status }) => {
@@ -56,7 +50,14 @@ export const authRouter = new Elysia({ prefix: "/api/auth" })
         summary: "Register a new user",
         tags: ["authentication"],
       },
-    },
+      beforeHandle: ({ headers, status }) => {
+        const csrfFromHeader = headers["x-csrf-token"];
+
+        if (!csrfFromHeader || !CSRF.verify(csrfFromHeader)) {
+          return status(403, { message: "csrf_token missing or incorrect" });
+        }
+      },
+    }
   )
   .post(
     "/login",
@@ -104,7 +105,24 @@ export const authRouter = new Elysia({ prefix: "/api/auth" })
         summary: "Log In the user with the provided e-mail",
         tags: ["authentication"],
       },
-    },
-  );
+      beforeHandle: ({ headers, status }) => {
+        const csrfFromHeader = headers["x-csrf-token"];
+
+        if (!csrfFromHeader || !CSRF.verify(csrfFromHeader)) {
+          return status(403, { message: "csrf_token missing or incorrect" });
+        }
+      },
+    }
+  )
+  .use(requireAuthentication())
+  .get("/user", async ({ user }) => {
+    return {
+      id: user.userId,
+      email: user.userEmail,
+    };
+  })
+  .get("/logout", async ({ cookie: { auth } }) => {
+    auth.remove();
+  });
 
 export type Auth = typeof authRouter;
