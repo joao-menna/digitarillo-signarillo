@@ -1,3 +1,4 @@
+import { LoginLayout } from "@/layouts/LoginLayout";
 import { ProtectedLayout } from "@/layouts/ProtectedLayout";
 import { DashboardPage } from "@/pages/dashboard";
 import { EmployeesPage } from "@/pages/employees";
@@ -28,12 +29,17 @@ export const router = createBrowserRouter([
     element: <Redirect />,
   },
   {
-    path: "login",
-    element: <LoginPage />,
-  },
-  {
-    path: "register",
-    element: <RegisterPage />,
+    element: <LoginLayout />,
+    children: [
+      {
+        path: "login",
+        element: <LoginPage />,
+      },
+      {
+        path: "register",
+        element: <RegisterPage />,
+      },
+    ],
   },
   {
     element: <ProtectedLayout />,

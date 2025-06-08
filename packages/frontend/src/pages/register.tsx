@@ -46,6 +46,7 @@ export function RegisterPage() {
     if (res.status === 200) {
       navigate("/login?registered=true");
     } else {
+      setWentWrong("Problema ao tentar registrar seu usuário.");
     }
   };
 

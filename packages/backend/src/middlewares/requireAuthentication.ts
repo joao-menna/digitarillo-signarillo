@@ -13,13 +13,14 @@ export const requireAuthentication = () =>
           const user = await jwt.verify(token);
 
           if (!user) {
-            return status(401, { message: "user not logged in" });
+            throw new Error("user not logged in");
           }
 
           return {
             user,
           };
-        } catch {
+        } catch (err) {
+          console.error(err);
           return status(401, { message: "user not logged in" });
         }
       }

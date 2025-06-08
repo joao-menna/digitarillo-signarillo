@@ -2,7 +2,7 @@ import Elysia, { t } from "elysia";
 import { setup } from "../middlewares/setup";
 import { requireAuthentication } from "../middlewares/requireAuthentication";
 import { db, table } from "../db";
-import { asc, desc, eq } from "drizzle-orm";
+import { asc, desc, eq, isNotNull, isNull } from "drizzle-orm";
 import fs from "fs/promises";
 import path from "path";
 import { v4 } from "uuid";
@@ -61,34 +61,49 @@ export const expenseRouter = new Elysia({ prefix: "/api/expense" })
         limit: t.Number({ minimum: 1, default: 1 }),
         sort: t.String({ default: "id asc" }),
       }),
-    },
+    }
   )
-  .get(
-    "/pending",
-    async ({ status }) => {
-      try {
-        const expenses = await db
-          .select({
-            id: table.expense.id,
-            name: table.expense.name,
-            amount: table.expense.amount,
-            createdAt: table.expense.createdAt,
-            employeeId: table.expense.employeeId,
-            receiptPath: table.expense.receiptPath,
-          })
-          .from(table.expense)
-          .orderBy(desc(table.expense.id))
-          .innerJoin(
-            table.report,
-            eq(table.expense.id, table.report.expenseId),
-          );
+  .get("/pending", async ({ status }) => {
+    try {
+      const expenses = await db
+        .select({
+          id: table.expense.id,
+          name: table.expense.name,
+          amount: table.expense.amount,
+          createdAt: table.expense.createdAt,
+          employeeId: table.expense.employeeId,
+          receiptPath: table.expense.receiptPath,
+        })
+        .from(table.expense)
+        .orderBy(desc(table.expense.id))
+        .leftJoin(table.report, eq(table.expense.id, table.report.expenseId))
+        .where(isNull(table.report.id));
 
-        return expenses;
-      } catch {
-        return status(500, { message: "internal server error" });
-      }
-    },
-  )
+      return expenses;
+    } catch {
+      return status(500, { message: "internal server error" });
+    }
+  })
+  .get("/signed", async ({ status }) => {
+    try {
+      const expenses = await db
+        .select({
+          id: table.expense.id,
+          name: table.expense.name,
+          amount: table.expense.amount,
+          createdAt: table.expense.createdAt,
+          employeeId: table.expense.employeeId,
+          receiptPath: table.expense.receiptPath,
+        })
+        .from(table.expense)
+        .orderBy(desc(table.expense.id))
+        .innerJoin(table.report, eq(table.expense.id, table.report.expenseId));
+
+      return expenses;
+    } catch {
+      return status(500, { message: "internal server error" });
+    }
+  })
   .get(
     "/:id",
     async ({ params: { id }, status }) => {
@@ -108,7 +123,7 @@ export const expenseRouter = new Elysia({ prefix: "/api/expense" })
       params: t.Object({
         id: t.Number({ minimum: 1 }),
       }),
-    },
+    }
   )
   .post(
     "/",
@@ -133,7 +148,7 @@ export const expenseRouter = new Elysia({ prefix: "/api/expense" })
         amount: t.Number(),
         receiptPath: t.String(),
       }),
-    },
+    }
   )
   .post(
     "/receipt",
@@ -159,7 +174,7 @@ export const expenseRouter = new Elysia({ prefix: "/api/expense" })
       body: t.Object({
         file: t.File({ type: ["image/jpeg", "image/png"] }),
       }),
-    },
+    }
   )
   .use(requireAuthentication())
   .delete(
@@ -175,7 +190,7 @@ export const expenseRouter = new Elysia({ prefix: "/api/expense" })
       params: t.Object({
         id: t.Number({ minimum: 1 }),
       }),
-    },
+    }
   )
   .post(
     "/vote",
@@ -198,7 +213,7 @@ export const expenseRouter = new Elysia({ prefix: "/api/expense" })
         await signReport(
           report.expenseId,
           dbUser.name,
-          body.vote === "approved",
+          body.vote === "approved"
         );
 
         return status(200, { message: "expense voted" });
@@ -214,7 +229,7 @@ export const expenseRouter = new Elysia({ prefix: "/api/expense" })
           rejected: "rejected",
         }),
       }),
-    },
+    }
   )
   .post(
     "/validate",
@@ -222,7 +237,7 @@ export const expenseRouter = new Elysia({ prefix: "/api/expense" })
       try {
         const isValid = verifyReportHashToSignature(
           expenseId,
-          await file.arrayBuffer(),
+          await file.arrayBuffer()
         );
         return { isValid };
       } catch {
@@ -234,5 +249,5 @@ export const expenseRouter = new Elysia({ prefix: "/api/expense" })
         expenseId: t.Number({ minimum: 1 }),
         file: t.File({ type: ["application/pdf"] }),
       }),
-    },
+    }
   );

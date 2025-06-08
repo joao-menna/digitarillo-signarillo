@@ -7,7 +7,7 @@ import { CSRF } from "bun";
 import { setup } from "../middlewares/setup";
 import { requireAuthentication } from "../middlewares/requireAuthentication";
 
-const jwtExpiration = 1 * 60 * 60; // 1h
+const jwtExpiration = 1 * 60 * 60 * 1000; // 1h
 
 const registerUserSchema = createInsertSchema(table.user, {
   email: t.String({ format: "email" }),
@@ -80,7 +80,7 @@ export const authRouter = new Elysia({ prefix: "/api/auth" })
         }
 
         const token = await jwt.sign({
-          exp: jwtExpiration,
+          exp: Date.now() + jwtExpiration,
           userId: user.id,
           userEmail: email,
         });

@@ -2,24 +2,22 @@ import { api } from "@/api";
 import { Outlet, useNavigate } from "react-router";
 import { useEffectOnce } from "react-use";
 
-export function ProtectedLayout() {
+export function LoginLayout() {
   const navigate = useNavigate();
 
   useEffectOnce(() => {
     (async () => {
       const res = await api.auth.user.get();
 
-      if (res.status !== 200) {
-        navigate("/login");
+      if (res.status === 200) {
+        navigate("/dashboard");
       }
     })();
   });
 
   return (
-    <div className="size-full flex justify-center">
-      <div className="container">
-        <Outlet />
-      </div>
-    </div>
+    <>
+      <Outlet />
+    </>
   );
 }

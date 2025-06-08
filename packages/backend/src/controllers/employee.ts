@@ -18,19 +18,19 @@ export const employeeRouter = new Elysia({ prefix: "/api/employee" })
         let columnIndex;
         switch (column) {
           case "id":
-            columnIndex = table.employees.id;
+            columnIndex = table.employee.id;
             break;
           case "name":
-            columnIndex = table.employees.name;
+            columnIndex = table.employee.name;
             break;
           case "email":
-            columnIndex = table.employees.email;
+            columnIndex = table.employee.email;
             break;
           case "createdAt":
-            columnIndex = table.employees.createdAt;
+            columnIndex = table.employee.createdAt;
             break;
           default:
-            columnIndex = table.employees.id;
+            columnIndex = table.employee.id;
         }
 
         let orderBy =
@@ -38,7 +38,7 @@ export const employeeRouter = new Elysia({ prefix: "/api/employee" })
 
         const employees = await db
           .select()
-          .from(table.employees)
+          .from(table.employee)
           .limit(limit)
           .offset((page - 1) * limit)
           .orderBy(orderBy);
@@ -62,8 +62,8 @@ export const employeeRouter = new Elysia({ prefix: "/api/employee" })
       try {
         const [employee] = await db
           .select()
-          .from(table.employees)
-          .where(eq(table.employees.id, id))
+          .from(table.employee)
+          .where(eq(table.employee.id, id))
           .limit(1);
 
         return employee;
@@ -82,7 +82,7 @@ export const employeeRouter = new Elysia({ prefix: "/api/employee" })
     async ({ body, status }) => {
       try {
         const [employee] = await db
-          .insert(table.employees)
+          .insert(table.employee)
           .values(body)
           .returning();
 
@@ -103,9 +103,9 @@ export const employeeRouter = new Elysia({ prefix: "/api/employee" })
     async ({ body, params: { id }, status }) => {
       try {
         const [employee] = await db
-          .update(table.employees)
+          .update(table.employee)
           .set(body)
-          .where(eq(table.employees.id, id))
+          .where(eq(table.employee.id, id))
           .returning();
 
         return employee;
@@ -127,7 +127,7 @@ export const employeeRouter = new Elysia({ prefix: "/api/employee" })
     "/:id",
     async ({ params: { id }, status }) => {
       try {
-        await db.delete(table.employees).where(eq(table.employees.id, id));
+        await db.delete(table.employee).where(eq(table.employee.id, id));
         return { message: "deleted successfully" };
       } catch {
         return status(500, { message: "internal server error" });
