@@ -1,12 +1,7 @@
 import crypto from "crypto";
-import {
-  pathForReports,
-  privateKeyFile,
-  publicKeyFile,
-} from "../constants/paths";
+import { publicKeyFile } from "../constants/paths";
 import fs from "fs/promises";
 import { getReportSignature } from "./getReportSignature";
-import path from "path";
 
 export async function verifyReportHashToSignature(
   expenseId: number,

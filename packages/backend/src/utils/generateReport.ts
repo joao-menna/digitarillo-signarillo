@@ -1,5 +1,5 @@
 import { PageSizes, PDFDocument } from "pdf-lib";
-import { Employee, Expense } from "../db/schema";
+import type { Employee, Expense } from "../db/schema";
 import fs from "fs/promises";
 import path from "path";
 import { pathForReceipts, pathForReports } from "../constants/paths";
@@ -148,7 +148,7 @@ export async function generateReport(expense: Expense) {
   await fs.writeFile(filePath, bytes);
 }
 
-function formatDateTime(date: Date) {
+export function formatDateTime(date: Date) {
   const formatter = new Intl.DateTimeFormat("pt-BR", {
     timeZone: "America/Sao_Paulo",
     day: "2-digit",

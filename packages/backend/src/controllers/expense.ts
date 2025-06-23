@@ -2,12 +2,12 @@ import Elysia, { file, t } from "elysia";
 import { setup } from "../middlewares/setup";
 import { requireAuthentication } from "../middlewares/requireAuthentication";
 import { db, table } from "../db";
-import { asc, desc, eq, isNotNull, isNull } from "drizzle-orm";
+import { asc, desc, eq, isNull } from "drizzle-orm";
 import fs from "fs/promises";
 import path from "path";
 import { v4 } from "uuid";
 import { existsSync, mkdirSync } from "fs";
-import { generateReport } from "../utils/generateReport";
+import { formatDateTime, generateReport } from "../utils/generateReport";
 import { pathForReceipts, pathForReports } from "../constants/paths";
 import { signReport } from "../utils/signReport";
 import { verifyReportHashToSignature } from "../utils/verifyReportHashToSignature";
@@ -230,6 +230,7 @@ export const expenseRouter = new Elysia({ prefix: "/api/expense" })
         await signReport(
           report.expenseId,
           dbUser.name,
+          formatDateTime(report.createdAt),
           body.vote === "approved"
         );
 

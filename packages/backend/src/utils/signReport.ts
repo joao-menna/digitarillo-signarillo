@@ -7,6 +7,7 @@ import { pathForReports, privateKeyFile } from "../constants/paths";
 export async function signReport(
   expenseId: number,
   userName: string,
+  timeStamp: string,
   approved: boolean
 ) {
   const pdfPath = path.resolve(pathForReports, `${expenseId}.pdf`);
@@ -19,6 +20,13 @@ export async function signReport(
   const [firstPage] = doc.getPages();
 
   const w = firstPage.getWidth();
+
+  firstPage.drawText(timeStamp, {
+    size: 16,
+    font,
+    x: ((w - 100) / 8) * 6 - 20,
+    y: 98,
+  });
 
   firstPage.drawText(userName, {
     size: 16,

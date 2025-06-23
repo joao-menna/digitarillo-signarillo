@@ -30,5 +30,5 @@
       "@/backend": ["../backend/src/index.ts"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "../backend/src/index.ts"]
 }
